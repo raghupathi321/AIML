@@ -1,0 +1,122 @@
+"use client";
+
+import { useUser, SignInButton } from "@clerk/clerk-react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+
+function FloatingPaths({ position }) {
+  const paths = Array.from({ length: 36 }, (_, i) => ({
+    id: i,
+    d: `M-${380 - i * 5 * position} -${189 + i * 6}C-${
+      380 - i * 5 * position
+    } -${189 + i * 6} -${312 - i * 5 * position} ${216 - i * 6} ${
+      152 - i * 5 * position
+    } ${343 - i * 6}C${616 - i * 5 * position} ${470 - i * 6} ${
+      684 - i * 5 * position
+    } ${875 - i * 6} ${684 - i * 5 * position} ${875 - i * 6}`,
+    color: `rgba(15,23,42,${0.1 + i * 0.03})`,
+    width: 0.5 + i * 0.03,
+  }));
+
+  return (
+    <div className="absolute inset-0 pointer-events-none">
+      <svg className="w-full h-full text-slate-950 dark:text-white" viewBox="0 0 696 316" fill="none">
+        <title>Background Paths</title>
+        {paths.map((path) => (
+          <motion.path
+            key={path.id}
+            d={path.d}
+            stroke="currentColor"
+            strokeWidth={path.width}
+            strokeOpacity={0.1 + path.id * 0.03}
+            initial={{ pathLength: 0.3, opacity: 0.6 }}
+            animate={{
+              pathLength: 1,
+              opacity: [0.3, 0.6, 0.3],
+              pathOffset: [0, 1, 0],
+            }}
+            transition={{
+              duration: 20 + Math.random() * 10,
+              repeat: Number.POSITIVE_INFINITY,
+              ease: "linear",
+            }}
+          />
+        ))}
+      </svg>
+    </div>
+  );
+}
+
+export default function Hero() {
+  const { isSignedIn } = useUser();
+  const navigate = useNavigate();
+
+  const handleStartPlanning = () => {
+    if (isSignedIn) {
+      navigate("/protected");
+    }
+  };
+
+  return (
+    <section className="relative w-full min-h-screen flex items-center justify-center px-8 md:px-16 lg:px-24 bg-gray-100 overflow-hidden">
+      <div className="absolute inset-0">
+        <FloatingPaths position={1} />
+        <FloatingPaths position={-1} />
+      </div>
+      <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+        {/* Left Content */}
+        <div>
+          <motion.h1
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-5xl font-bold text-black leading-tight"
+          >
+            Your AI Travel Assistant for Perfect Vacations
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.8 }}
+            className="text-lg text-gray-600 mt-4"
+          >
+            Plan your dream trip with our AI-powered travel planner. Get personalized itineraries, real-time recommendations, and 24/7 assistance.
+          </motion.p>
+
+          {/* Buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
+            className="mt-6 flex gap-4"
+          >
+            {isSignedIn ? (
+              <button
+                onClick={handleStartPlanning}
+                className="bg-black text-white px-6 py-3 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-gray-800 transition"
+              >
+                Start Planning
+              </button>
+            ) : (
+              <SignInButton mode="modal">
+                <button className="bg-black text-white px-6 py-3 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-gray-800 transition">
+                  Start Planning
+                </button>
+              </SignInButton>
+            )}
+            <button className="bg-white border border-gray-400 px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition">
+              Watch Demo
+            </button>
+          </motion.div>
+        </div>
+
+        {/* Right Placeholder Image */}
+        <div className="flex items-center justify-center relative">
+          <div className="w-full max-w-lg bg-gray-300 h-64 rounded-xl shadow-md"></div>
+          <div className="absolute bottom-[-40px] right-[-40px] w-60 h-36 bg-gray-200 rounded-xl shadow-md"></div>
+        </div>
+      </div>
+    </section>
+  );
+}
